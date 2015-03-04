@@ -36,11 +36,17 @@
 @interface JCPriorityQueueHeaderNode : NSObject <JCPriorityQueueObject>
 @end
 
+typedef BOOL (^JCPriorityQueueObjectComparisonBlock)(id<JCPriorityQueueObject> other);
+
 @interface JCPriorityQueue : NSObject
 
 - (void)addObject:(id<JCPriorityQueueObject>)object;
 - (id<JCPriorityQueueObject>)pop;
 - (void)resort:(id<JCPriorityQueueObject>)object;
+
+- (BOOL)containsObject:(id<JCPriorityQueueObject>)object;
+- (id<JCPriorityQueueObject>)findObjectWithBlock:(JCPriorityQueueObjectComparisonBlock)compare;
+- (id<JCPriorityQueueObject>)findObject:(id<JCPriorityQueueObject>)object;
 
 - (id<JCPriorityQueueObject>)first;
 - (NSUInteger)count;

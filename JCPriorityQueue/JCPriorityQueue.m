@@ -33,7 +33,7 @@
 
 - (NSInteger)cost
 {
-  return NSIntegerMin;
+  return NSIntegerMax;
 }
 
 - (NSString *)description
@@ -72,14 +72,14 @@
 
 - (void)addObject:(id<JCPriorityQueueObject>)object
 {  
-  NSUInteger last_index = [self count];
+  NSUInteger last_index = self.queue.count;
   NSUInteger parent_index = last_index / 2;
 
   [self.queue addObject:object];
   
   id<JCPriorityQueueObject> parent = [self.queue objectAtIndex:parent_index];
   
-  while (object.cost < parent.cost) //compare with parent
+  while (object.cost > parent.cost) //compare with parent
   {
     [self.queue removeObject:object];
     [self.queue insertObject:object atIndex:parent_index];
@@ -104,7 +104,7 @@
   }
  
   NSUInteger first_index = 1;
-  NSUInteger last_index = [self count] - 1;
+  NSUInteger last_index = self.queue.count - 1;
   
   if (last_index == first_index)
   {
@@ -120,25 +120,25 @@
   
   NSUInteger i, child;
   
-  for (i = first_index; i * 2 < [self count]; i = child)
+  for (i = first_index; i * 2 < self.queue.count; i = child)
   {
     child = i * 2;
 
     id<JCPriorityQueueObject> child_obj = [self.queue objectAtIndex:child];
     id<JCPriorityQueueObject> child_2;
 
-    if (child + 1 < [self count])
+    if (child + 1 < self.queue.count)
     {
       child_2 = [self.queue objectAtIndex:child + 1];
 
-      if (child_2.cost < child_obj.cost)
+      if (child_2.cost > child_obj.cost)
       {
         child++;
         child_obj = child_2;
       }
     }
 
-    if (last_object.cost > child_obj.cost)
+    if (last_object.cost < child_obj.cost)
     {
       [self.queue removeObject:child_obj];
       [self.queue insertObject:child_obj atIndex:i];
@@ -162,7 +162,7 @@
 
   id<JCPriorityQueueObject> parent = [self.queue objectAtIndex:parent_index];
 
-  while (object.cost < parent.cost) //compare with parent
+  while (object.cost > parent.cost) //compare with parent
   {
     [self.queue removeObject:object];
     [self.queue insertObject:object atIndex:parent_index];
@@ -177,6 +177,30 @@
   }
 }
 
+- (BOOL)containsObject:(id <JCPriorityQueueObject>)object
+{
+    NSUInteger object_index = [self.queue indexOfObject:object];
+    return object_index != NSNotFound;
+}
+
+- (id<JCPriorityQueueObject>)findObjectWithBlock:(JCPriorityQueueObjectComparisonBlock)compare
+{
+    for (NSUInteger i = 1; i < self.queue.count; i++)
+    {
+        id <JCPriorityQueueObject> obj = [self.queue objectAtIndex:i];
+        if (compare(obj))
+            return obj;
+    }
+
+    return nil;
+}
+
+- (id<JCPriorityQueueObject>)findObject:(id<JCPriorityQueueObject>)object
+{
+    NSUInteger object_index = [self.queue indexOfObject:object];
+    return [self.queue objectAtIndex:object_index];
+}
+
 - (id<JCPriorityQueueObject>)first
 {
   if (self.queue.count < 2) return nil;
@@ -186,12 +210,12 @@
 
 - (NSUInteger)count
 {
-  return self.queue.count;
+  return self.queue.count - 1;
 }
 
 -(NSString *)description
 {
-  return [NSString stringWithFormat:@"JCPriorityQueue: %lu items",[self count]];
+  return [NSString stringWithFormat:@"JCPriorityQueue: %lu items", (unsigned long)[self count]];
 }
 
 @end
